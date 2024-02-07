@@ -149,60 +149,15 @@ public class Main {
 
     public static void newIncidence(){
 
-        List<String> paneEmployeesOptionsList = new ArrayList<>();
-        employees.forEach(e -> paneEmployeesOptionsList.add(e.getName()));
+        int employeeIndexSelection = selectEmployee();
+        Employee incidenceEmployee = employees.get(employeeIndexSelection);
 
-        String[] paneEmployeeOptionsArray = paneEmployeesOptionsList.toArray(new String[0]);
-
-        int EmployeeIndexSelection = JOptionPane.showOptionDialog(
-                null,
-                "Selecciona el empleado que recibirá la incidencia",
-                "Empleado",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                paneEmployeeOptionsArray,
-                paneEmployeeOptionsArray[0]
-        );
-
-        Employee incidenceEmployee = employees.get(EmployeeIndexSelection);
-
-        List<String> paneClientOptionsList = new ArrayList<>();
-        appUsers.forEach(u -> paneClientOptionsList.add(u.getName()));
-
-        String[] paneClientOptionsArray = paneClientOptionsList.toArray(new String[0]);
-
-        int clientIndexSelection = JOptionPane.showOptionDialog(
-                null,
-                "Indique el cliente que abre la incidencia",
-                "Cliente",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                paneClientOptionsArray,
-                paneClientOptionsArray[0]
-        );
-
+        int clientIndexSelection = selectClient();
         User incidentClient = appUsers.get(clientIndexSelection);
 
         String incidenceDescription = JOptionPane.showInputDialog(null, "Descripción de la incidencia");
 
-        List<String> paneIncidenceTypeOptionsList = new ArrayList<>();
-        incidenceTypes.forEach(it -> paneIncidenceTypeOptionsList.add(it));
-
-        String[] paneIncidenceTypeOptionsArray = paneIncidenceTypeOptionsList.toArray(new String[0]);
-
-        int incidenceTypeIndexSelection = JOptionPane.showOptionDialog(
-                null,
-                "Indique el cliente que abre la incidencia",
-                "Cliente",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                paneIncidenceTypeOptionsArray,
-                paneIncidenceTypeOptionsArray[0]
-        );
-
+        int incidenceTypeIndexSelection = selectIncidenceType();
         String incidenceType = incidenceTypes.get(incidenceTypeIndexSelection);
 
         Incidence newIncidence = new Incidence(incidenceEmployee, incidentClient, incidenceDescription, incidenceType);
@@ -376,7 +331,6 @@ public class Main {
     }
 
     public static void userSignUp() {
-
         String userName = JOptionPane.showInputDialog(null, "Inserte nombre nuevo usuario");
         String userNif = JOptionPane.showInputDialog(null, "Inserte DNI usuario");
         String userEmail = JOptionPane.showInputDialog(null, "Inserte e-mail");
@@ -400,6 +354,7 @@ public class Main {
                     || user.getEmail().contains(userInput)
                     || user.getNif().contains(userInput)){
                 appUsers.remove(user);
+                System.out.println(appUsers);
                 JOptionPane.showMessageDialog(null, "Usuario eliminado satisfactoriamente");
             }
         }
@@ -412,11 +367,9 @@ public class Main {
     }
 
     public static void userModification() {
-        String userInput = JOptionPane.showInputDialog(null, "Inserte nombre, dni o email de usuario a borrar");
-        for(User user: appUsers){
-            if(user.getName().contains(userInput)
-                    || user.getEmail().contains(userInput)
-                    || user.getNif().contains(userInput)){
+        //String userInput = JOptionPane.showInputDialog(null, "Inserte nombre, dni o email de usuario a borrar");
+        int userIndex = selectClient();
+        User user = appUsers.get(userIndex);
 
                 String[] options = {"Nombre", "Email", "NIF"};
                 int selection = JOptionPane.showOptionDialog(
@@ -452,7 +405,6 @@ public class Main {
                         }
                         break;
                 }
-
             }
         }
         rewriteUsersTxt();
@@ -516,5 +468,65 @@ public class Main {
         }
         return false;
     }
+
+    public static int selectEmployee(){
+        List<String> paneEmployeesOptionsList = new ArrayList<>();
+        employees.forEach(e -> paneEmployeesOptionsList.add(e.getName()));
+
+        String[] paneEmployeeOptionsArray = paneEmployeesOptionsList.toArray(new String[0]);
+
+        int employeeIndexSelection = JOptionPane.showOptionDialog(
+                null,
+                "Selecciona el empleado que recibirá la incidencia",
+                "Empleado",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                paneEmployeeOptionsArray,
+                paneEmployeeOptionsArray[0]
+        );
+
+        return employeeIndexSelection;
+    }
+
+    public static int selectClient(){
+        List<String> paneClientOptionsList = new ArrayList<>();
+        appUsers.forEach(u -> paneClientOptionsList.add(u.getName()));
+
+        String[] paneClientOptionsArray = paneClientOptionsList.toArray(new String[0]);
+
+        int clientIndexSelection = JOptionPane.showOptionDialog(
+                null,
+                "Indique el cliente que abre la incidencia",
+                "Cliente",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                paneClientOptionsArray,
+                paneClientOptionsArray[0]
+        );
+        return clientIndexSelection;
+    }
+
+    public static int selectIncidenceType(){
+
+        List<String> paneIncidenceTypeOptionsList = new ArrayList<>();
+        incidenceTypes.forEach(it -> paneIncidenceTypeOptionsList.add(it));
+
+        String[] paneIncidenceTypeOptionsArray = paneIncidenceTypeOptionsList.toArray(new String[0]);
+
+        int incidenceTypeIndexSelection = JOptionPane.showOptionDialog(
+                null,
+                "Indique el cliente que abre la incidencia",
+                "Cliente",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                paneIncidenceTypeOptionsArray,
+                paneIncidenceTypeOptionsArray[0]
+        );
+        return incidenceTypeIndexSelection;
+    }
+
 
 }

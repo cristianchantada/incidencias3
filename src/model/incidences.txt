@@ -1,3 +1,2 @@
 2024-02-06T10:59:59|765819933Y|Cristian|cristianchantada@gmail.com|true|40967544J|Paula|paulavaldoarado@gmail.com|Se ma roto la bombilla|Iluminación|RECIBIDA
 2024-02-07T12:52:32|40967544JY|Iván|ivangomezmatos@gmail.com|false|22234566AJ|Lucía|luciavaldoarado@gmail.com|Ha explotado la lámpara|Iluminación|RECIBIDA
-
