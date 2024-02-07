@@ -10,4 +10,9 @@
 		<NOMBRE>Mateo</NOMBRE>
 		<CORREO>mateomonterrosso@mail.com</CORREO>
 	<record>
+	<record>
+		<NIF>00000000A</NIF>
+		<NOMBRE>Miguel</NOMBRE>
+		<CORREO>miguelangel@furro.com</CORREO>
+	<record>
 </dataset>

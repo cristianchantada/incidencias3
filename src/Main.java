@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Main {
 
-    private static final String PATH_TO_MODEL = "C:\\DAW\\Programación\\Java2Evaluacion\\Incidencias3\\src\\model";
+    private static final String PATH_TO_MODEL = "C:\\Users\\Usuario\\Desktop\\incidencias3\\src\\model";
     private static final String USERS_FILE = PATH_TO_MODEL + "\\users.txt";
     private static final String INCIDENCE_TYPES_FILE = PATH_TO_MODEL + "\\incidenceTypes.txt";
     private static final String INCIDENCE_FILE = PATH_TO_MODEL + "\\incidences.txt";
@@ -22,7 +22,17 @@ public class Main {
     private static final List<String> incidenceTypes = new ArrayList<>();
     private static final List<Employee> employees = new ArrayList<>();
 
-    public static void main(String[] args) {
+    public static void main (String[] args) {
+        loadData();
+        showMainMenu();
+    }
+
+    private static void loadData(){
+        appUsers.clear();
+        incidences.clear();
+        incidenceTypes.clear();
+        employees.clear();
+
         try {
             Scanner usc = new Scanner(usersTxtFile);
             Scanner itsc = new Scanner(incidenceTypesTxtFile);
@@ -75,13 +85,13 @@ public class Main {
                     IncidenceState incidenceState = IncidenceState.RECIBIDA;
 
                     switch (incidenceStateStr) {
-                        case "recibida" -> {
+                        case "RECIBIDA" -> {
                             incidenceState = IncidenceState.RECIBIDA;
                         }
-                        case "en proceso" -> {
+                        case "EN_PROCESO" -> {
                             incidenceState = IncidenceState.EN_PROCESO;
                         }
-                        case "solucionada" -> {
+                        case "SOLUCIONADA" -> {
                             incidenceState = IncidenceState.SOLUCIONADA;
                         }
                     }
@@ -115,6 +125,9 @@ public class Main {
             e.printStackTrace();
         }
 
+    }
+
+    private static void showMainMenu(){
         String[] options = {"Entrada nueva incidencia", "Cambiar el estado de una incidencia", "Solucionar incidencia por código de cliente", "Listar incidencias", "Ingresar como Administrador" ,"Salir del programa"};
         int selection = JOptionPane.showOptionDialog(
                 null,
@@ -152,7 +165,7 @@ public class Main {
         int employeeIndexSelection = selectEmployee();
         Employee incidenceEmployee = employees.get(employeeIndexSelection);
 
-        int clientIndexSelection = selectClient();
+        int clientIndexSelection = selectClient("Indique el cliente que abre la incidencia");
         User incidentClient = appUsers.get(clientIndexSelection);
 
         String incidenceDescription = JOptionPane.showInputDialog(null, "Descripción de la incidencia");
@@ -163,10 +176,13 @@ public class Main {
         Incidence newIncidence = new Incidence(incidenceEmployee, incidentClient, incidenceDescription, incidenceType);
         incidences.add(newIncidence);
         rewriteIncidencesTxt();
+        JOptionPane.showMessageDialog(null, "Incidencia creada con éxito");
         main(null);
     }
 
     public static void changeIncidenceState(){
+
+        int incidenceIndex = selectIncidence();
 
         IncidenceState[] incidenceStateOptions = IncidenceState.values();
         String[] optionsNames = new String[incidenceStateOptions.length];
@@ -174,7 +190,6 @@ public class Main {
             optionsNames[i] = incidenceStateOptions[i].getState();
         }
 
-        // Mostrar el diálogo de opciones
         int selectedIndex = JOptionPane.showOptionDialog(
                 null,
                 "Selecciona un estado de incidencia",
@@ -186,43 +201,60 @@ public class Main {
                 optionsNames[0]
         );
 
+        if(optionsNames[selectedIndex].equals("recibida")){
+            incidences.get(incidenceIndex).setIncidenceState(IncidenceState.RECIBIDA);
+        } else if (optionsNames[selectedIndex].equals("en proceso")) {
+            incidences.get(incidenceIndex).setIncidenceState(IncidenceState.EN_PROCESO);
+        } else if (optionsNames[selectedIndex].equals("solucionada")) {
+            incidences.get(incidenceIndex).setIncidenceState(IncidenceState.SOLUCIONADA);
+        }
+
+        JOptionPane.showMessageDialog(null,"El estado de la incidencia ha sido cambiado a " + incidences.get(incidenceIndex).getIncidenceState());
+        rewriteIncidencesTxt();
+        main(null);
     }
 
     public static void closeIncidence(){
         List<String> incidentOptionList = new ArrayList<>();
         int i = 0;
         for(Incidence inc : incidences){
-            i++;
             if(!inc.getIncidenceState().equals(IncidenceState.SOLUCIONADA)){
                 User u = inc.getUser();
                 String uNif = u.getNif();
-                String iType = inc.getIncidenceType();
-                String iDesc = inc.getIncidenceType();
-                incidentOptionList.add(i + "-. Cód. cliente (nif): " + uNif + " | Tipo: " + iType + " | Desc.: " + iDesc);
+                String iDesc = inc.getDescription();
+                IncidenceState iState = inc.getIncidenceState();
+                incidentOptionList.add(i + "-. Cód.cliente: " + uNif + " | Estado: " + iState + " | Desc.: " + iDesc);
             }
+            i++;
         }
 
-        String[] incidenceOptionsArray = incidentOptionList.toArray(new String[0]);
-        int incidenceIndex = JOptionPane.showOptionDialog(
-                null,
-                "Selecciona la incidencia a establecer como solucionada",
-                "Solucionar incidencia",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                incidenceOptionsArray,
-                incidenceOptionsArray[0]
-        );
+        incidentOptionList.add("SALIR");
+        if(incidentOptionList.size() > 1){
+            String[] incidenceOptionsArray = incidentOptionList.toArray(new String[0]);
+            int incidenceIndex = JOptionPane.showOptionDialog(
+                    null,
+                    "Selecciona la incidencia a establecer como solucionada",
+                    "Solucionar incidencia",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    incidenceOptionsArray,
+                    incidenceOptionsArray[0]
+            );
 
-        String selectedIncidenceToRemoveStr = incidenceOptionsArray[incidenceIndex];
-        int numRef = Integer.parseInt( selectedIncidenceToRemoveStr.substring(0, 1));
+            if(incidenceIndex == incidentOptionList.size() - 1){
+                main(null);
+            }
 
-        incidences.get(numRef).setIncidenceState(IncidenceState.SOLUCIONADA);
-        rewriteIncidencesTxt();
+            String selectedIncidenceToRemoveStr = incidenceOptionsArray[incidenceIndex];
+            int numRef = Integer.parseInt( selectedIncidenceToRemoveStr.substring(0, 1));
+
+            incidences.get(numRef).setIncidenceState(IncidenceState.SOLUCIONADA);
+            rewriteIncidencesTxt();
+        } else {
+            JOptionPane.showMessageDialog(null, "Todas las incidencias de la app están solucionadas");
+        }
         main(null);
-
-
-
     }
 
     public static void listIncidences(){
@@ -231,6 +263,8 @@ public class Main {
         for(Incidence incidence: incidences){
             Employee e = incidence.getEmployee();
             User u = incidence.getUser();
+
+            System.out.println("incidence = " + incidence.getDescription());
 
             LocalDateTime incidenceOpenDateTime = incidence.getOpenIncidenceDate();
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -278,11 +312,10 @@ public class Main {
             JOptionPane.showMessageDialog(null, "Nombre de admin o nif incorrectos","Acceso denegado", JOptionPane.INFORMATION_MESSAGE );
             main(null);
         }
-
     }
 
     public static void showUsersAdminPane(){
-        String[] options = {"Alta usuario", "Baja usuario", "Modificación usuario", "Listar usuarios"};
+        String[] options = {"Alta usuario", "Baja usuario", "Modificación usuario", "Listar usuarios", "SALIR Admin clientes"};
         int selection = JOptionPane.showOptionDialog(
                 null,
                 "Seleccione una opción:",
@@ -306,6 +339,8 @@ public class Main {
             case 3:
                 listUsers();
                 break;
+            case 4:
+                main(null);
         }
     }
 
@@ -314,7 +349,7 @@ public class Main {
         StringBuilder sb = new StringBuilder();
         int i = 1;
         for (User user : appUsers) {
-
+            sb.append("---------------------------------------------------------------\n");
             sb.append("Usuario con NIF " + user.getNif() +
                     "\n\tNombre: " + user.getName() +
                     "\n\te-mail: " + user.getEmail()
@@ -326,7 +361,7 @@ public class Main {
         JOptionPane.showMessageDialog(
                 null, listText, "Datos de la Lista", JOptionPane.INFORMATION_MESSAGE
         );
-        main(null);
+        showUsersAdminPane();
 
     }
 
@@ -343,73 +378,63 @@ public class Main {
         } else {
             JOptionPane.showMessageDialog(null, "NIF ya registrado. El usuario ya se encuentra en el sistema");
         }
-        main(null);
+        showUsersAdminPane();
     }
 
     public static void userUnregister() {
-        String userInput = JOptionPane.showInputDialog(null, "Inserte nombre, dni o email de usuario a borrar");
-        int appUsersSize = appUsers.size();
-        for(User user: appUsers){
-            if(user.getName().contains(userInput)
-                    || user.getEmail().contains(userInput)
-                    || user.getNif().contains(userInput)){
-                appUsers.remove(user);
-                System.out.println(appUsers);
-                JOptionPane.showMessageDialog(null, "Usuario eliminado satisfactoriamente");
-            }
-        }
-
-        if(appUsersSize == appUsers.size()){
-            JOptionPane.showMessageDialog(null, "No existe el usuario indicado");
-        }
+        int clientIndex = selectClient("Indique el cliente que desea eliminar");
+        appUsers.remove(clientIndex);
+        JOptionPane.showMessageDialog(null, "Usuario eliminado satisfactoriamente");
         rewriteUsersTxt();
-        main(null);
+        showUsersAdminPane();
     }
 
     public static void userModification() {
-        //String userInput = JOptionPane.showInputDialog(null, "Inserte nombre, dni o email de usuario a borrar");
-        int userIndex = selectClient();
+        int userIndex = selectClient("Indique el usuario que desea modificar");
         User user = appUsers.get(userIndex);
 
-                String[] options = {"Nombre", "Email", "NIF"};
-                int selection = JOptionPane.showOptionDialog(
-                        null,
-                        "USUARIO:\n" +
-                                "\tNombre: " + user.getName() +
-                                "\tNIF: " + user.getNif() +
-                                "\tNombre: " + user.getEmail() +
-                                "¿QUÉ DATO DESEA MODIFICAR?:",
-                        "Modificación de usuario",
-                        JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        options,
-                        options[0]);
+        String[] options = {"Nombre", "Email", "NIF"};
+        int selection = JOptionPane.showOptionDialog(
+                null,
+                "USUARIO:\n" +
+                        "\tNombre: " + user.getName() + "\n" +
+                        "\tNIF: " + user.getNif() + "\n" +
+                        "\tNombre: " + user.getEmail() + "\n" +
+                        "¿QUÉ DATO DESEA MODIFICAR?:",
+                "Modificación de usuario",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
 
-                switch (selection) {
-                    case 0:
-                        String userName = JOptionPane.showInputDialog(null, "Introduzca nuevo nombre usuario");
-                        user.setName(userName);
-                        break;
-                    case 1:
-                        String userEmail = JOptionPane.showInputDialog(null, "Introduzca el nuevo emaildel usuario");
-                        user.setEmail(userEmail);
-                        break;
-                    case 2:
-                        String userNif = JOptionPane.showInputDialog(null, "Introduzca nuevo NIF de usuario");
-                        if(!userNifExists(userNif)){
-                            user.setNif(userNif);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "El NIF ya está registrado en el sistema. Velva a intentarlo");
-                            userModification();
-                        }
-                        break;
+        switch (selection) {
+            case 0:
+                String userName = JOptionPane.showInputDialog(null, "Introduzca nuevo nombre usuario");
+                user.setName(userName);
+                JOptionPane.showMessageDialog(null, "El nombre del usuario " + user.getName() + " ha sido modificado con éxito");
+                break;
+            case 1:
+                String userEmail = JOptionPane.showInputDialog(null, "Introduzca el nuevo emaildel usuario");
+                user.setEmail(userEmail);
+                JOptionPane.showMessageDialog(null, "El email del usuario " + user.getName() + " ha sido modificado con éxito");
+                break;
+            case 2:
+                String userNif = JOptionPane.showInputDialog(null, "Introduzca nuevo NIF de usuario");
+                if(!userNifExists(userNif)){
+                    user.setNif(userNif);
+                    JOptionPane.showMessageDialog(null, "El NIF del usuario " + user.getName() + " ha sido modificado con éxito");
+                } else {
+                    JOptionPane.showMessageDialog(null, "El NIF ya está registrado en el sistema. Velva a intentarlo");
                 }
-            }
+                break;
         }
         rewriteUsersTxt();
-        main(null);
+        showUsersAdminPane();
     }
+
+
 
     public static void rewriteUsersTxt()  {
         FileWriter fw;
@@ -475,7 +500,7 @@ public class Main {
 
         String[] paneEmployeeOptionsArray = paneEmployeesOptionsList.toArray(new String[0]);
 
-        int employeeIndexSelection = JOptionPane.showOptionDialog(
+        return JOptionPane.showOptionDialog(
                 null,
                 "Selecciona el empleado que recibirá la incidencia",
                 "Empleado",
@@ -485,19 +510,40 @@ public class Main {
                 paneEmployeeOptionsArray,
                 paneEmployeeOptionsArray[0]
         );
-
-        return employeeIndexSelection;
     }
 
-    public static int selectClient(){
+    public static int selectIncidence(){
+        List<String> paneIncidenceOptionsList = new ArrayList<>();
+
+        for(Incidence i : incidences){
+            User u = i.getUser();
+            String message = "Cliente: " + u.getNif() + ". Estado inc.: " + i.getIncidenceState();
+            paneIncidenceOptionsList.add(message);
+        }
+
+        String[] paneIncidenceOptionsArray = paneIncidenceOptionsList.toArray(new String[0]);
+
+        return JOptionPane.showOptionDialog(
+                null,
+                "Indique la incidencia de la que desea cambiar su estado",
+                "Cliente",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                paneIncidenceOptionsArray,
+                paneIncidenceOptionsArray[0]
+        );
+    }
+
+    public static int selectClient(String message){
         List<String> paneClientOptionsList = new ArrayList<>();
         appUsers.forEach(u -> paneClientOptionsList.add(u.getName()));
 
         String[] paneClientOptionsArray = paneClientOptionsList.toArray(new String[0]);
 
-        int clientIndexSelection = JOptionPane.showOptionDialog(
+        return JOptionPane.showOptionDialog(
                 null,
-                "Indique el cliente que abre la incidencia",
+                message,
                 "Cliente",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
@@ -505,7 +551,6 @@ public class Main {
                 paneClientOptionsArray,
                 paneClientOptionsArray[0]
         );
-        return clientIndexSelection;
     }
 
     public static int selectIncidenceType(){
@@ -515,7 +560,7 @@ public class Main {
 
         String[] paneIncidenceTypeOptionsArray = paneIncidenceTypeOptionsList.toArray(new String[0]);
 
-        int incidenceTypeIndexSelection = JOptionPane.showOptionDialog(
+        return JOptionPane.showOptionDialog(
                 null,
                 "Indique el cliente que abre la incidencia",
                 "Cliente",
@@ -525,8 +570,6 @@ public class Main {
                 paneIncidenceTypeOptionsArray,
                 paneIncidenceTypeOptionsArray[0]
         );
-        return incidenceTypeIndexSelection;
     }
-
 
 }
