@@ -1,0 +1,3 @@
+76581933Y|Cristian|cristianchantada@gmail.com|true
+23465667Y|Michell|michellcolombia@gmail.com|false
+64345563R|Laura|lauou@gmail.com|false
