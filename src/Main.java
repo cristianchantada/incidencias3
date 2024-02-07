@@ -85,9 +85,6 @@ public class Main {
                     IncidenceState incidenceState = IncidenceState.RECIBIDA;
 
                     switch (incidenceStateStr) {
-                        case "RECIBIDA" -> {
-                            incidenceState = IncidenceState.RECIBIDA;
-                        }
                         case "EN_PROCESO" -> {
                             incidenceState = IncidenceState.EN_PROCESO;
                         }
@@ -95,6 +92,7 @@ public class Main {
                             incidenceState = IncidenceState.SOLUCIONADA;
                         }
                     }
+
                     User client = new User(nifIncidenceClientStr, nameIncidenceClientStr, emailIncidenceClientStr);
                     Incidence incidence = new Incidence(openIncidenceDateInLocalDateFormat, employee, client,
                             incidenceDescriptionStr, incidenceTypeStr, incidenceState);
@@ -176,7 +174,7 @@ public class Main {
         Incidence newIncidence = new Incidence(incidenceEmployee, incidentClient, incidenceDescription, incidenceType);
         incidences.add(newIncidence);
         rewriteIncidencesTxt();
-        JOptionPane.showMessageDialog(null, "Incidencia creada con éxito");
+        showSimpleMessage("Incidencia creada con éxito");
         main(null);
     }
 
@@ -201,34 +199,19 @@ public class Main {
                 optionsNames[0]
         );
 
-        if(optionsNames[selectedIndex].equals("recibida")){
-            incidences.get(incidenceIndex).setIncidenceState(IncidenceState.RECIBIDA);
-        } else if (optionsNames[selectedIndex].equals("en proceso")) {
-            incidences.get(incidenceIndex).setIncidenceState(IncidenceState.EN_PROCESO);
-        } else if (optionsNames[selectedIndex].equals("solucionada")) {
-            incidences.get(incidenceIndex).setIncidenceState(IncidenceState.SOLUCIONADA);
+        switch (optionsNames[selectedIndex]) {
+            case "recibida" -> incidences.get(incidenceIndex).setIncidenceState(IncidenceState.RECIBIDA);
+            case "en proceso" -> incidences.get(incidenceIndex).setIncidenceState(IncidenceState.EN_PROCESO);
+            case "solucionada" -> incidences.get(incidenceIndex).setIncidenceState(IncidenceState.SOLUCIONADA);
         }
 
-        JOptionPane.showMessageDialog(null,"El estado de la incidencia ha sido cambiado a " + incidences.get(incidenceIndex).getIncidenceState());
+        showSimpleMessage("El estado de la incidencia ha sido cambiado a " + incidences.get(incidenceIndex).getIncidenceState());
         rewriteIncidencesTxt();
         main(null);
     }
 
     public static void closeIncidence(){
-        List<String> incidentOptionList = new ArrayList<>();
-        int i = 0;
-        for(Incidence inc : incidences){
-            if(!inc.getIncidenceState().equals(IncidenceState.SOLUCIONADA)){
-                User u = inc.getUser();
-                String uNif = u.getNif();
-                String iDesc = inc.getDescription();
-                IncidenceState iState = inc.getIncidenceState();
-                incidentOptionList.add(i + "-. Cód.cliente: " + uNif + " | Estado: " + iState + " | Desc.: " + iDesc);
-            }
-            i++;
-        }
-
-        incidentOptionList.add("SALIR");
+        List<String> incidentOptionList = getStrings();
         if(incidentOptionList.size() > 1){
             String[] incidenceOptionsArray = incidentOptionList.toArray(new String[0]);
             int incidenceIndex = JOptionPane.showOptionDialog(
@@ -252,9 +235,27 @@ public class Main {
             incidences.get(numRef).setIncidenceState(IncidenceState.SOLUCIONADA);
             rewriteIncidencesTxt();
         } else {
-            JOptionPane.showMessageDialog(null, "Todas las incidencias de la app están solucionadas");
+            showSimpleMessage("Todas las incidencias de la app están solucionadas");
         }
         main(null);
+    }
+
+    private static List<String> getStrings() {
+        List<String> incidentOptionList = new ArrayList<>();
+        int i = 0;
+        for(Incidence inc : incidences){
+            if(!inc.getIncidenceState().equals(IncidenceState.SOLUCIONADA)){
+                User u = inc.getUser();
+                String uNif = u.getNif();
+                String iDesc = inc.getDescription();
+                IncidenceState iState = inc.getIncidenceState();
+                incidentOptionList.add(i + "-. Cód.cliente: " + uNif + " | Estado: " + iState + " | Desc.: " + iDesc);
+            }
+            i++;
+        }
+
+        incidentOptionList.add("SALIR");
+        return incidentOptionList;
     }
 
     public static void listIncidences(){
@@ -264,7 +265,6 @@ public class Main {
             Employee e = incidence.getEmployee();
             User u = incidence.getUser();
 
-            System.out.println("incidence = " + incidence.getDescription());
 
             LocalDateTime incidenceOpenDateTime = incidence.getOpenIncidenceDate();
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -285,7 +285,7 @@ public class Main {
         }
 
         String message = sb.toString();
-        JOptionPane.showMessageDialog(null, message,"Listado de incidencias", JOptionPane.INFORMATION_MESSAGE );
+        showSimpleMessage(message, "Listado de incidencias");
         main(null);
     }
 
@@ -296,7 +296,6 @@ public class Main {
         boolean credentials = false;
 
         for(Employee e : employees){
-            System.out.println("e.getNif() + e.getName() = " + e.getNif() + e.getName());
             if(e.isAdmin()){
                 if(e.getNif().equals(adminNif)) {
                     if (e.getName().equals(adminName)){
@@ -309,7 +308,7 @@ public class Main {
         if (credentials){
             showUsersAdminPane();
         } else {
-            JOptionPane.showMessageDialog(null, "Nombre de admin o nif incorrectos","Acceso denegado", JOptionPane.INFORMATION_MESSAGE );
+            showSimpleMessage("Nombre de admin o nif incorrectos", "Acceso denegado");
             main(null);
         }
     }
@@ -347,7 +346,6 @@ public class Main {
 
     public static void listUsers(){
         StringBuilder sb = new StringBuilder();
-        int i = 1;
         for (User user : appUsers) {
             sb.append("---------------------------------------------------------------\n");
             sb.append("Usuario con NIF " + user.getNif() +
@@ -358,9 +356,7 @@ public class Main {
         }
         String listText = sb.toString();
 
-        JOptionPane.showMessageDialog(
-                null, listText, "Datos de la Lista", JOptionPane.INFORMATION_MESSAGE
-        );
+        showSimpleMessage(listText, "Datos de la Lista");
         showUsersAdminPane();
 
     }
@@ -376,7 +372,7 @@ public class Main {
             appUsers.add(user);
             rewriteUsersTxt();
         } else {
-            JOptionPane.showMessageDialog(null, "NIF ya registrado. El usuario ya se encuentra en el sistema");
+            showSimpleMessage("NIF ya registrado. El usuario ya se encuentra en el sistema");
         }
         showUsersAdminPane();
     }
@@ -384,7 +380,7 @@ public class Main {
     public static void userUnregister() {
         int clientIndex = selectClient("Indique el cliente que desea eliminar");
         appUsers.remove(clientIndex);
-        JOptionPane.showMessageDialog(null, "Usuario eliminado satisfactoriamente");
+        showSimpleMessage("Usuario eliminado satisfactoriamente");
         rewriteUsersTxt();
         showUsersAdminPane();
     }
@@ -413,20 +409,20 @@ public class Main {
             case 0:
                 String userName = JOptionPane.showInputDialog(null, "Introduzca nuevo nombre usuario");
                 user.setName(userName);
-                JOptionPane.showMessageDialog(null, "El nombre del usuario " + user.getName() + " ha sido modificado con éxito");
+                showSimpleMessage("El nombre del usuario " + user.getName() + " ha sido modificado con éxito");
                 break;
             case 1:
                 String userEmail = JOptionPane.showInputDialog(null, "Introduzca el nuevo emaildel usuario");
                 user.setEmail(userEmail);
-                JOptionPane.showMessageDialog(null, "El email del usuario " + user.getName() + " ha sido modificado con éxito");
+                showSimpleMessage("El email del usuario " + user.getName() + " ha sido modificado con éxito");
                 break;
             case 2:
                 String userNif = JOptionPane.showInputDialog(null, "Introduzca nuevo NIF de usuario");
                 if(!userNifExists(userNif)){
                     user.setNif(userNif);
-                    JOptionPane.showMessageDialog(null, "El NIF del usuario " + user.getName() + " ha sido modificado con éxito");
+                    showSimpleMessage("El NIF del usuario " + user.getName() + " ha sido modificado con éxito");
                 } else {
-                    JOptionPane.showMessageDialog(null, "El NIF ya está registrado en el sistema. Velva a intentarlo");
+                    showSimpleMessage("El NIF ya está registrado en el sistema. Velva a intentarlo");
                 }
                 break;
         }
@@ -440,8 +436,10 @@ public class Main {
         FileWriter fw;
         try {
             fw = new FileWriter(USERS_FILE, false);
-            fw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                    "<dataset>\n"
+            fw.write("""
+                    <?xml version="1.0" encoding="UTF-8" ?>
+                    <dataset>
+                    """
             );
 
             for(User user: appUsers){
@@ -488,6 +486,11 @@ public class Main {
     public static boolean userNifExists(String userNif){
         for(User User : appUsers){
             if (User.getNif().equals(userNif)) {
+                return true;
+            }
+        }
+        for(Employee e : employees){
+            if (e.getNif().equals(userNif)) {
                 return true;
             }
         }
@@ -555,8 +558,7 @@ public class Main {
 
     public static int selectIncidenceType(){
 
-        List<String> paneIncidenceTypeOptionsList = new ArrayList<>();
-        incidenceTypes.forEach(it -> paneIncidenceTypeOptionsList.add(it));
+        List<String> paneIncidenceTypeOptionsList = new ArrayList<>(incidenceTypes);
 
         String[] paneIncidenceTypeOptionsArray = paneIncidenceTypeOptionsList.toArray(new String[0]);
 
@@ -570,6 +572,14 @@ public class Main {
                 paneIncidenceTypeOptionsArray,
                 paneIncidenceTypeOptionsArray[0]
         );
+    }
+
+    public static void showSimpleMessage(String message){
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    public static void showSimpleMessage(String message, String title){
+        JOptionPane.showMessageDialog(null, message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
 }
