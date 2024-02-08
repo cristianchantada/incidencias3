@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Main {
 
-    private static final String PATH_TO_MODEL = "C:\\Users\\Usuario\\Desktop\\incidencias3\\src\\model";
+    private static final String PATH_TO_MODEL = "C:\\DAW\\Programación\\Java2Evaluacion\\Incidencias3\\src\\model";
     private static final String USERS_FILE = PATH_TO_MODEL + "\\users.txt";
     private static final String INCIDENCE_TYPES_FILE = PATH_TO_MODEL + "\\incidenceTypes.txt";
     private static final String INCIDENCE_FILE = PATH_TO_MODEL + "\\incidences.txt";
@@ -151,7 +151,7 @@ public class Main {
                 listIncidences();
                 break;
             case 4:
-                showSiginPane();
+                showSigInPane();
                 break;
             case 5:
                 System.exit(0);
@@ -240,7 +240,7 @@ public class Main {
         main(null);
     }
 
-    private static List<String> getStrings() {
+    public static List<String> getStrings() {
         List<String> incidentOptionList = new ArrayList<>();
         int i = 0;
         for(Incidence inc : incidences){
@@ -289,7 +289,7 @@ public class Main {
         main(null);
     }
 
-    public static void showSiginPane(){
+    public static void showSigInPane(){
         String adminName = JOptionPane.showInputDialog(null, "Ingrese el nombre de administrador");
         String adminNif = JOptionPane.showInputDialog(null, "Ingrese el nif de administrador");
 
